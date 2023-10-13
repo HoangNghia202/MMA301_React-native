@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "mma301",
-    "slug": "mma301",
+    "name": "react-native-gmapsExpo",
+    "slug": "react-native-gmapsExpo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
