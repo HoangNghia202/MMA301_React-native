@@ -1,36 +1,66 @@
-import { StatusBar } from "expo-status-bar";
-import { Button, StyleSheet, Text, View } from "react-native";
-import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
-import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
-import Map from "./sceens/map";
-import ImageApi from "./sceens/image";
-const Stack = createStackNavigator();
+import React, { useState, useEffect } from "react";
+import { AccessibilityInfo, View, Text, StyleSheet } from "react-native";
 
-export const Image = () => {
+const App = () => {
+    const [reduceMotionEnabled, setReduceMotionEnabled] = useState(false);
+    const [screenReaderEnabled, setScreenReaderEnabled] = useState(false);
+
+    useEffect(() => {
+        const reduceMotionChangedSubscription =
+            AccessibilityInfo.addEventListener(
+                "reduceMotionChanged",
+                (isReduceMotionEnabled) => {
+                    setReduceMotionEnabled(isReduceMotionEnabled);
+                }
+            );
+        const screenReaderChangedSubscription =
+            AccessibilityInfo.addEventListener(
+                "screenReaderChanged",
+                (isScreenReaderEnabled) => {
+                    setScreenReaderEnabled(isScreenReaderEnabled);
+                }
+            );
+
+        AccessibilityInfo.isReduceMotionEnabled().then(
+            (isReduceMotionEnabled) => {
+                setReduceMotionEnabled(isReduceMotionEnabled);
+            }
+        );
+        AccessibilityInfo.isScreenReaderEnabled().then(
+            (isScreenReaderEnabled) => {
+                setScreenReaderEnabled(isScreenReaderEnabled);
+            }
+        );
+
+        return () => {
+            reduceMotionChangedSubscription.remove();
+            screenReaderChangedSubscription.remove();
+        };
+    }, []);
+
     return (
-        <View>
-            <Text>Image</Text>
+        <View style={styles.container}>
+            <Text style={styles.status}>
+                The reduce motion is{" "}
+                {reduceMotionEnabled ? "enabled" : "disabled"}.
+            </Text>
+            <Text style={styles.status}>
+                The screen reader is{" "}
+                {screenReaderEnabled ? "enabled" : "disabled"}.
+            </Text>
         </View>
     );
 };
 
-export default function App() {
-    return (
-        <NavigationContainer>
-            <Stack.Navigator initialRouteName="Map">
-                <Stack.Screen name="Map" component={Map} />
-                <Stack.Screen name="Image" component={ImageApi} />
-            </Stack.Navigator>
-        </NavigationContainer>
-    );
-}
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#fff",
         alignItems: "center",
         justifyContent: "center",
     },
+    status: {
+        margin: 30,
+    },
 });
+
+export default App;
